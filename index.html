@@ -3,38 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TV Show Ratings</title>
+    <title>TV Shows Finder</title>
     <style>
+        /* Overall Page Style */
         body {
-            font-family: Arial, sans-serif;
-            margin: 2em;
+            font-family: 'Georgia', serif;
+            background-color: #2f1b0d;
+            color: #f8f1e5;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            padding: 2em;
         }
+
+        /* Retro Fantasy Theme Container */
         #tv-show-container {
-            border: 1px solid #ccc;
-            padding: 1em;
-            border-radius: 8px;
-            max-width: 500px;
+            border: 2px solid #d4a373;
+            padding: 2em;
+            border-radius: 12px;
+            max-width: 1000px;
+            background-color: #4b3621;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            animation: glow 2s infinite alternate;
+            text-align: center;
         }
-        .rating-buttons {
-            margin-top: 1em;
+
+        /* Animation for a Glowing Effect */
+        @keyframes glow {
+            from { box-shadow: 0 0 10px rgba(255, 215, 0, 0.4); }
+            to { box-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
         }
-        button {
-            padding: 0.5em 1em;
-            margin-top: 1em;
-        }
-        #result-container {
-            margin-top: 2em;
-        }
+
+        /* Progress Bar */
         #progress-bar {
             width: 100%;
-            background-color: #f3f3f3;
+            background-color: #d4a373;
             border-radius: 5px;
             margin-bottom: 1em;
             overflow: hidden;
         }
         #progress {
             height: 10px;
-            background-color: #4caf50;
+            background-color: #ffeb3b;
+            transition: width 0.5s ease;
+        }
+
+        /* Text and Button Styles */
+        h2, p {
+            color: #ffebcd;
+            text-shadow: 1px 1px 2px #2f1b0d;
+        }
+        .rating-buttons label {
+            margin-right: 10px;
+            color: #f8f1e5;
+            cursor: pointer;
+        }
+        button {
+            padding: 0.7em 1.2em;
+            margin-top: 1em;
+            background-color: #d4a373;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            color: #2f1b0d;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #ffeb3b;
+            color: #2f1b0d;
+        }
+
+        /* Chart Container */
+        #result-container {
+            margin-top: 2em;
+            padding: 1em;
+            border: 1px solid #d4a373;
+            border-radius: 8px;
+            background-color: #4b3621;
+            color: #ffebcd;
+            max-width: 1000px;
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -166,7 +215,7 @@
                 datasets: [{
                     label: 'High Ratings Count',
                     data: topGenres.map(genre => genre[1]),
-                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+                    backgroundColor: ['#FF6347', '#32CD32', '#1E90FF'],
                 }]
             },
             options: {
@@ -187,8 +236,4 @@
     }
 
     // Initialize
-    getRandomShows();
-</script>
-
-</body>
-</html>
+    getRandomShows
