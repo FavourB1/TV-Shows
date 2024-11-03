@@ -56,10 +56,6 @@
     .button:hover {
       background-color: #a2907b;
     }
-
-    .chart-container {
-      margin-top: 20px;
-    }
   </style>
 </head>
 <body>
@@ -73,45 +69,14 @@
       <!-- Rating buttons will be displayed here -->
     </div>
     <button class="button" id="skip-button">Skip</button>
-    <div class="chart-container" id="chart-container" style="display: none;">
-      <canvas id="genreChart" width="400" height="300"></canvas>
-    </div>
   </div>
-
-  <!-- Chart.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <script>
     // Sample JSON data
     const tvShows = [
       { "title": "I Love Lucy", "author": "Desi Arnaz, Madelyn Pugh, Bob Carroll Jr.", "year": 1951, "genre": ["Sitcom", "Comedy"] },
       { "title": "The Twilight Zone", "author": "Rod Serling", "year": 1959, "genre": ["Sci-Fi", "Thriller"] },
-      {"title": "Doctor Who", "author": "Sydney Newman", "year": 1963, "genre": ["Sci-Fi", "Adventure"]},
-      {"title": "Star Trek", "author": "Gene Roddenberry", "year": 1966, "genre": ["Sci-Fi", "Adventure"]},
-      {"title": "Monty Python’s Flying Circus", "author": "Graham Chapman, John Cleese, Eric Idle", "year": 1969, "genre": ["Comedy", "Sketch"]},
-      {"title": "All in the Family", "author": "Norman Lear", "year": 1971, "genre": ["Sitcom", "Comedy"]},
-      {"title": "M*A*S*H", "author": "Larry Gelbart", "year": 1972, "genre": ["Comedy", "Drama"]},
-      {"title": "Saturday Night Live", "author": "Lorne Michaels", "year": 1975, "genre": ["Comedy", "Variety"]},
-      {"title": "Roots", "author": "Alex Haley", "year": 1977, "genre": ["Drama", "Historical"]},
-      {"title": "Dallas", "author": "David Jacobs", "year": 1978, "genre": ["Drama"]},
-      {"title": "The Simpsons", "author": "Matt Groening", "year": 1989, "genre": ["Animation", "Comedy"]},
-      {"title": "Twin Peaks", "author": "David Lynch, Mark Frost", "year": 1990, "genre": ["Mystery", "Thriller"]},
-      {"title": "The X-Files", "author": "Chris Carter", "year": 1993, "genre": ["Sci-Fi", "Mystery"]},
-      {"title": "Friends", "author": "David Crane, Marta Kauffman", "year": 1994, "genre": ["Sitcom", "Comedy"]},
-      {"title": "The West Wing", "author": "Aaron Sorkin", "year": 1999, "genre": ["Drama"]},
-      {"title": "The Sopranos", "author": "David Chase", "year": 1999, "genre": ["Crime", "Drama"]},
-      {"title": "Six Feet Under", "author": "Alan Ball", "year": 2001, "genre": ["Drama"]},
-      {"title": "Lost", "author": "J.J. Abrams, Damon Lindelof", "year": 2004, "genre": ["Drama", "Adventure"]},
-      {"title": "Battlestar Galactica", "author": "Ronald D. Moore", "year": 2004, "genre": ["Sci-Fi", "Drama"]},
-      {"title": "Grey's Anatomy", "author": "Shonda Rhimes", "year": 2005, "genre": ["Drama", "Romance"]},
-      {"title": "The Office", "author": "Greg Daniels", "year": 2005, "genre": ["Sitcom", "Comedy"]},
-      {"title": "Breaking Bad", "author": "Vince Gilligan", "year": 2008, "genre": ["Crime", "Drama"]},
-      {"title": "Mad Men", "author": "Matthew Weiner", "year": 2007, "genre": ["Drama"]},
-      {"title": "Game of Thrones", "author": "David Benioff, D.B. Weiss", "year": 2011, "genre": ["Fantasy", "Drama"]},
-      {"title": "The Walking Dead", "author": "Frank Darabont", "year": 2010, "genre": ["Horror", "Drama"]},
-      {"title": "Sherlock", "author": "Mark Gatiss, Steven Moffat", "year": 2010, "genre": ["Crime", "Drama"]},
-      {"title": "Squid Game", "author": "Hwang Dong-hyuk", "year": 2021, "genre": ["Drama", "Thriller"]}
-]
+      // Add more TV shows here...
     ];
 
     let currentShowIndex = 0;
@@ -122,7 +87,7 @@
     function displayShow() {
       if (currentShowIndex >= selectedShows.length) {
         alert("You've rated all available shows!");
-        showGenreChart();
+        showTopGenres();
         return;
       }
 
@@ -174,39 +139,17 @@
       displayShow();
     });
 
-    // Show genre chart based on ratings
-    function showGenreChart() {
-      const ctx = document.getElementById('genreChart').getContext('2d');
-      document.getElementById("chart-container").style.display = "block";
-
-      const sortedGenres = Object.entries(genreRatings)
+    // Show top genres based on ratings
+    function showTopGenres() {
+      const topGenres = Object.entries(genreRatings)
         .sort((a, b) => b[1] - a[1])
-        .slice(0, 10); // Top 10 genres
+        .slice(0, 3);
 
-      const labels = sortedGenres.map(item => item[0]);
-      const data = sortedGenres.map(item => item[1]);
+      const genreMessage = topGenres.length > 0 
+        ? `Your top genres are: ${topGenres.map(genre => genre[0] + " (" + genre[1] + " shows)").join(", ")}`
+        : "No preferences identified.";
 
-      new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Genre Ratings',
-            data: data,
-            backgroundColor: 'rgba(212, 175, 55, 0.7)',
-            borderColor: '#d4af37',
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              beginAtZero: true
-            }
-          }
-        }
-      });
+      alert(genreMessage);
     }
 
     // Initialize the display with the first show
