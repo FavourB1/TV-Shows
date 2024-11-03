@@ -1,194 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TV Show Ratings</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 2em;
-        }
-        #tv-show-container {
-            border: 1px solid #ccc;
-            padding: 1em;
-            border-radius: 8px;
-            max-width: 500px;
-        }
-        .rating-buttons {
-            margin-top: 1em;
-        }
-        button {
-            padding: 0.5em 1em;
-            margin-top: 1em;
-        }
-        #result-container {
-            margin-top: 2em;
-        }
-        #progress-bar {
-            width: 100%;
-            background-color: #f3f3f3;
-            border-radius: 5px;
-            margin-bottom: 1em;
-            overflow: hidden;
-        }
-        #progress {
-            height: 10px;
-            background-color: #4caf50;
-        }
-    </style>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TV Shows Finder</title>
+  <style>
+    /* Retro Fantasy Theme Styles */
+    body {
+      font-family: 'Garamond', serif;
+      background-color: #3b3a3a;
+      color: #f8f1e5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      padding: 20px;
+      background-color: #2d2c2c;
+      border: 1px solid #8a7e72;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #d4af37;
+    }
+
+    .show-info {
+      margin: 20px 0;
+      padding: 15px;
+      background-color: #403d3d;
+      border-radius: 5px;
+    }
+
+    .rating-buttons label {
+      margin: 0 5px;
+      color: #d4af37;
+    }
+
+    .button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #8a7e72;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      background-color: #a2907b;
+    }
+  </style>
 </head>
 <body>
 
-<div id="tv-show-container">
-    <div id="progress-bar">
-        <div id="progress" style="width: 0%;"></div>
+  <div class="container">
+    <h1>TV Shows Finder</h1>
+    <div class="show-info" id="show-info">
+      <!-- TV show details will be displayed here -->
     </div>
-    <h2 id="tv-title">TV Show Title</h2>
-    <p id="tv-author">Author: </p>
-    <p id="tv-year">Year: </p>
-    <p id="tv-genre">Genre: </p>
-    <div class="rating-buttons">
+    <div class="rating-buttons" id="rating-buttons">
+      <!-- Rating buttons will be displayed here -->
+    </div>
+    <button class="button" id="skip-button">Skip</button>
+  </div>
+
+  <script>
+    // Sample JSON data
+    const tvShows = [
+      { "title": "I Love Lucy", "author": "Desi Arnaz, Madelyn Pugh, Bob Carroll Jr.", "year": 1951, "genre": ["Sitcom", "Comedy"] },
+      { "title": "The Twilight Zone", "author": "Rod Serling", "year": 1959, "genre": ["Sci-Fi", "Thriller"] },
+      // Add more TV shows here...
+    ];
+
+    let currentShowIndex = 0;
+    const selectedShows = tvShows.sort(() => 0.5 - Math.random()).slice(0, 15); // Randomly select 15 TV shows
+    const genreRatings = {};
+
+    // Display the current TV show
+    function displayShow() {
+      if (currentShowIndex >= selectedShows.length) {
+        alert("You've rated all available shows!");
+        showTopGenres();
+        return;
+      }
+
+      const show = selectedShows[currentShowIndex];
+      document.getElementById("show-info").innerHTML = `
+        <h2>${show.title}</h2>
+        <p><strong>Author:</strong> ${show.author}</p>
+        <p><strong>Year:</strong> ${show.year}</p>
+        <p><strong>Genre:</strong> ${show.genre.join(", ")}</p>
+      `;
+
+      document.getElementById("rating-buttons").innerHTML = `
         <label><input type="radio" name="rating" value="1"> 1</label>
         <label><input type="radio" name="rating" value="2"> 2</label>
         <label><input type="radio" name="rating" value="3"> 3</label>
         <label><input type="radio" name="rating" value="4"> 4</label>
         <label><input type="radio" name="rating" value="5"> 5</label>
-        <label><input type="radio" name="rating" value="skip"> Haven't watched</label>
-    </div>
-    <button onclick="rateShow()">Rate</button>
-    <button onclick="skipShow()">Skip</button>
-</div>
+        <label><input type="radio" name="rating" value="0"> Haven't watched</label>
+      `;
 
-<div id="result-container">
-    <h3>Results</h3>
-    <canvas id="genreChart" width="400" height="200"></canvas>
-    <p>Top Genres Based on Ratings:</p>
-    <ul id="top-genres"></ul>
-    <button onclick="rateMoreShows()">Rate More Shows</button>
-    <button onclick="finishRating()">Finish and View Recommendations</button>
-</div>
-
-<script>
-    // Sample JSON data as an array of objects
-    const tvShows = [
-        {"title": "I Love Lucy", "author": "Desi Arnaz, Madelyn Pugh, Bob Carroll Jr.", "year": 1951, "genre": ["Sitcom", "Comedy"]},
-        {"title": "The Twilight Zone", "author": "Rod Serling", "year": 1959, "genre": ["Sci-Fi", "Thriller"]},
-        {"title": "Doctor Who", "author": "Sydney Newman", "year": 1963, "genre": ["Sci-Fi", "Adventure"]},
-        {"title": "Star Trek", "author": "Gene Roddenberry", "year": 1966, "genre": ["Sci-Fi", "Adventure"]},
-        // Add more TV shows up to 100
-    ];
-
-    let displayedShows = [];
-    let ratedShows = [];
-    let currentShowIndex = 0;
-    const highRatingsPerGenre = {};
-    const totalRatingsPerGenre = {};
-    const ratingCountsPerGenre = {};
-
-    function getRandomShows() {
-        let availableShows = tvShows.filter(show => !ratedShows.includes(show.title));
-        let shuffled = availableShows.sort(() => 0.5 - Math.random());
-        displayedShows = shuffled.slice(0, 10);
-        currentShowIndex = 0;
-        updateProgressBar();
-        displayShow();
+      document.getElementById("rating-buttons").querySelectorAll("input").forEach(input => {
+        input.addEventListener("change", handleRating);
+      });
     }
 
-    function displayShow() {
-        if (currentShowIndex >= displayedShows.length) {
-            alert("You have rated all available shows in this round!");
-            displayResults();
-            return;
-        }
+    // Handle rating
+    function handleRating(event) {
+      const rating = parseInt(event.target.value, 10);
+      const show = selectedShows[currentShowIndex];
 
-        const show = displayedShows[currentShowIndex];
-        document.getElementById("tv-title").textContent = show.title;
-        document.getElementById("tv-author").textContent = "Author: " + show.author;
-        document.getElementById("tv-year").textContent = "Year: " + show.year;
-        document.getElementById("tv-genre").textContent = "Genre: " + show.genre.join(", ");
-    }
-
-    function rateShow() {
-        const rating = document.querySelector('input[name="rating"]:checked')?.value;
-
-        if (!rating) {
-            alert("Please select a rating or choose 'Haven't watched'.");
-            return;
-        }
-
-        if (rating !== "skip") {
-            const show = displayedShows[currentShowIndex];
-            show.genre.forEach(genre => {
-                if (!highRatingsPerGenre[genre]) highRatingsPerGenre[genre] = 0;
-                if (!totalRatingsPerGenre[genre]) totalRatingsPerGenre[genre] = 0;
-                if (!ratingCountsPerGenre[genre]) ratingCountsPerGenre[genre] = 0;
-
-                totalRatingsPerGenre[genre] += parseInt(rating);
-                ratingCountsPerGenre[genre] += 1;
-
-                if (parseInt(rating) >= 3) {
-                    highRatingsPerGenre[genre] += 1;
-                }
-            });
-
-            ratedShows.push(show.title);
-        }
-
-        currentShowIndex++;
-        updateProgressBar();
-        displayShow();
-        document.querySelector('input[name="rating"]:checked').checked = false;
-    }
-
-    function skipShow() {
-        currentShowIndex++;
-        updateProgressBar();
-        displayShow();
-    }
-
-    function updateProgressBar() {
-        const progress = (currentShowIndex / displayedShows.length) * 100;
-        document.getElementById("progress").style.width = `${progress}%`;
-    }
-
-    function displayResults() {
-        const topGenres = Object.entries(highRatingsPerGenre)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 3);
-
-        const genreChartCtx = document.getElementById('genreChart').getContext('2d');
-        new Chart(genreChartCtx, {
-            type: 'bar',
-            data: {
-                labels: topGenres.map(genre => genre[0]),
-                datasets: [{
-                    label: 'High Ratings Count',
-                    data: topGenres.map(genre => genre[1]),
-                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: { beginAtZero: true }
-                }
-            }
+      // If rated 3 or higher, update genre ratings
+      if (rating >= 3) {
+        show.genre.forEach(genre => {
+          if (!genreRatings[genre]) {
+            genreRatings[genre] = 0;
+          }
+          genreRatings[genre]++;
         });
+      }
+
+      // Move to the next show
+      currentShowIndex++;
+      displayShow();
     }
 
-    function rateMoreShows() {
-        getRandomShows();
+    // Skip current show
+    document.getElementById("skip-button").addEventListener("click", () => {
+      currentShowIndex++;
+      displayShow();
+    });
+
+    // Show top genres based on ratings
+    function showTopGenres() {
+      const topGenres = Object.entries(genreRatings)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3);
+
+      const genreMessage = topGenres.length > 0 
+        ? `Your top genres are: ${topGenres.map(genre => genre[0] + " (" + genre[1] + " shows)").join(", ")}`
+        : "No preferences identified.";
+
+      alert(genreMessage);
     }
 
-    function finishRating() {
-        alert("Thank you for rating! Your recommendations are ready.");
-    }
-
-    // Initialize
-    getRandomShows();
-</script>
+    // Initialize the display with the first show
+    displayShow();
+  </script>
 
 </body>
 </html>
