@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TV Show Ratings</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2em;
+        }
+        #tv-show-container {
+            border: 1px solid #ccc;
+            padding: 1em;
+            border-radius: 8px;
+            max-width: 500px;
+        }
+        .rating-buttons {
+            margin-top: 1em;
+        }
+        button {
+            padding: 0.5em 1em;
+            margin-top: 1em;
+        }
+        #result-container {
+            margin-top: 2em;
+        }
+    </style>
+</head>
+<body>
+
+<div id="tv-show-container">
+    <h2 id="tv-title">TV Show Title</h2>
+    <p id="tv-author">Author: </p>
+    <p id="tv-year">Year: </p>
+    <p id="tv-genre">Genre: </p>
+    <div class="rating-buttons">
+        <label><input type="radio" name="rating" value="1"> 1</label>
+        <label><input type="radio" name="rating" value="2"> 2</label>
+        <label><input type="radio" name="rating" value="3"> 3</label>
+        <label><input type="radio" name="rating" value="4"> 4</label>
+        <label><input type="radio" name="rating" value="5"> 5</label>
+        <label><input type="radio" name="rating" value="skip"> Haven't watched</label>
+    </div>
+    <button onclick="rateShow()">Rate</button>
+    <button onclick="skipShow()">Skip</button>
+</div>
+
+<div id="result-container">
+    <h3>Results</h3>
+    <p>High Ratings Per Genre:</p>
+    <ul id="genre-results"></ul>
+    <p>Average Ratings Per Genre:</p>
+    <ul id="average-ratings"></ul>
+</div>
+
+<script>
+    // Sample JSON data as an array of objects
+    const tvShows = [
+        {"title": "I Love Lucy", "author": "Desi Arnaz, Madelyn Pugh, Bob Carroll Jr.", "year": 1951, "genre": ["Sitcom", "Comedy"]},
+        {"title": "The Twilight Zone", "author": "Rod Serling", "year": 1959, "genre": ["Sci-Fi", "Thriller"]},
+        {"title": "Doctor Who", "author": "Sydney Newman", "year": 1963, "genre": ["Sci-Fi", "Adventure"]},
+        {"title": "Star Trek", "author": "Gene Roddenberry", "year": 1966, "genre": ["Sci-Fi", "Adventure"]},
+        // Add more TV shows here up to 100
+    ];
+
+    let displayedShows = [];
+    let currentShowIndex = 0;
+
+    const highRatingsPerGenre = {};
+    const totalRatingsPerGenre = {};
+    const ratingCountsPerGenre = {};
+
+    function getRandomShows() {
+        // Shuffle and pick 10 random shows
+        let shuffled = tvShows.sort(() => 0.5 - Math.random());
+        displayedShows = shuffled.slice(0, 10);
+    }
+
+    function displayShow() {
+        if (currentShowIndex >= displayedShows.length) {
+            alert("You have rated all available shows!");
+            displayResults();
+            return;
+        }
+
+        const show = displayedShows[currentShowIndex];
+        document.getElementById("tv-title").textContent = show.title;
+        document.getElementById("tv-author").textContent = "Author: " + show.author;
+        document.getElementById("tv-year").textContent = "Year: " + show.year;
+        document.getElementById("tv-genre").textContent = "Genre: " + show.genre.join(", ");
+    }
+
+    function rateShow() {
+        const rating = document.querySelector('input[name="rating"]:checked')?.value;
+
+        if (!rating) {
+            alert("Please select a rating or choose 'Haven't watched'.");
+            return;
+        }
+
+        if (rating !== "skip") {
+            const show = displayedShows[currentShowIndex];
+            show.genre.forEach(genre => {
+                if (!highRatingsPerGenre[genre]) highRatingsPerGenre[genre] = 0;
+                if (!totalRatingsPerGenre[genre]) totalRatingsPerGenre[genre] = 0;
+                if (!ratingCountsPerGenre[genre]) ratingCountsPerGenre[genre] = 0;
+
+                totalRatingsPerGenre[genre] += parseInt(rating);
+                ratingCountsPerGenre[genre] += 1;
+
+                if (parseInt(rating) >= 3) {
+                    highRatingsPerGenre[genre] += 1;
+                }
+            });
+        }
+
+        currentShowIndex++;
+        displayShow();
+        document.querySelector('input[name="rating"]:checked').checked = false; // Reset the rating selection
+    }
+
+    function skipShow() {
+        currentShowIndex++;
+        displayShow();
+    }
+
+    function displayResults() {
+        const genreResults = document.getElementById("genre-results");
+        const averageRatings = document.getElementById("average-ratings");
+        genreResults.innerHTML = "";
+        averageRatings.innerHTML = "";
+
+        for (let genre in highRatingsPerGenre) {
+            const li = document.createElement("li");
+            li.textContent = `${genre}: ${highRatingsPerGenre[genre]} high ratings`;
+            genreResults.appendChild(li);
+        }
+
+        for (let genre in totalRatingsPerGenre) {
+            const avgRating = (totalRatingsPerGenre[genre] / ratingCountsPerGenre[genre]).toFixed(2);
+            const li = document.createElement("li");
+            li.textContent = `${genre}: Average Rating ${avgRating}`;
+            averageRatings.appendChild(li);
+        }
+    }
+
+    // Initialize
+    getRandomShows();
+    displayShow();
+</script>
+
+</body>
+</html>
