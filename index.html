@@ -25,11 +25,26 @@
         #result-container {
             margin-top: 2em;
         }
+        #progress-bar {
+            width: 100%;
+            background-color: #f3f3f3;
+            border-radius: 5px;
+            margin-bottom: 1em;
+            overflow: hidden;
+        }
+        #progress {
+            height: 10px;
+            background-color: #4caf50;
+        }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
 <div id="tv-show-container">
+    <div id="progress-bar">
+        <div id="progress" style="width: 0%;"></div>
+    </div>
     <h2 id="tv-title">TV Show Title</h2>
     <p id="tv-author">Author: </p>
     <p id="tv-year">Year: </p>
@@ -48,10 +63,11 @@
 
 <div id="result-container">
     <h3>Results</h3>
-    <p>High Ratings Per Genre:</p>
-    <ul id="genre-results"></ul>
-    <p>Average Ratings Per Genre:</p>
-    <ul id="average-ratings"></ul>
+    <canvas id="genreChart" width="400" height="200"></canvas>
+    <p>Top Genres Based on Ratings:</p>
+    <ul id="top-genres"></ul>
+    <button onclick="rateMoreShows()">Rate More Shows</button>
+    <button onclick="finishRating()">Finish and View Recommendations</button>
 </div>
 
 <script>
@@ -61,25 +77,28 @@
         {"title": "The Twilight Zone", "author": "Rod Serling", "year": 1959, "genre": ["Sci-Fi", "Thriller"]},
         {"title": "Doctor Who", "author": "Sydney Newman", "year": 1963, "genre": ["Sci-Fi", "Adventure"]},
         {"title": "Star Trek", "author": "Gene Roddenberry", "year": 1966, "genre": ["Sci-Fi", "Adventure"]},
-        // Add more TV shows here up to 100
+        // Add more TV shows up to 100
     ];
 
     let displayedShows = [];
+    let ratedShows = [];
     let currentShowIndex = 0;
-
     const highRatingsPerGenre = {};
     const totalRatingsPerGenre = {};
     const ratingCountsPerGenre = {};
 
     function getRandomShows() {
-        // Shuffle and pick 10 random shows
-        let shuffled = tvShows.sort(() => 0.5 - Math.random());
+        let availableShows = tvShows.filter(show => !ratedShows.includes(show.title));
+        let shuffled = availableShows.sort(() => 0.5 - Math.random());
         displayedShows = shuffled.slice(0, 10);
+        currentShowIndex = 0;
+        updateProgressBar();
+        displayShow();
     }
 
     function displayShow() {
         if (currentShowIndex >= displayedShows.length) {
-            alert("You have rated all available shows!");
+            alert("You have rated all available shows in this round!");
             displayResults();
             return;
         }
@@ -113,41 +132,62 @@
                     highRatingsPerGenre[genre] += 1;
                 }
             });
+
+            ratedShows.push(show.title);
         }
 
         currentShowIndex++;
+        updateProgressBar();
         displayShow();
-        document.querySelector('input[name="rating"]:checked').checked = false; // Reset the rating selection
+        document.querySelector('input[name="rating"]:checked').checked = false;
     }
 
     function skipShow() {
         currentShowIndex++;
+        updateProgressBar();
         displayShow();
     }
 
+    function updateProgressBar() {
+        const progress = (currentShowIndex / displayedShows.length) * 100;
+        document.getElementById("progress").style.width = `${progress}%`;
+    }
+
     function displayResults() {
-        const genreResults = document.getElementById("genre-results");
-        const averageRatings = document.getElementById("average-ratings");
-        genreResults.innerHTML = "";
-        averageRatings.innerHTML = "";
+        const topGenres = Object.entries(highRatingsPerGenre)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 3);
 
-        for (let genre in highRatingsPerGenre) {
-            const li = document.createElement("li");
-            li.textContent = `${genre}: ${highRatingsPerGenre[genre]} high ratings`;
-            genreResults.appendChild(li);
-        }
+        const genreChartCtx = document.getElementById('genreChart').getContext('2d');
+        new Chart(genreChartCtx, {
+            type: 'bar',
+            data: {
+                labels: topGenres.map(genre => genre[0]),
+                datasets: [{
+                    label: 'High Ratings Count',
+                    data: topGenres.map(genre => genre[1]),
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    }
 
-        for (let genre in totalRatingsPerGenre) {
-            const avgRating = (totalRatingsPerGenre[genre] / ratingCountsPerGenre[genre]).toFixed(2);
-            const li = document.createElement("li");
-            li.textContent = `${genre}: Average Rating ${avgRating}`;
-            averageRatings.appendChild(li);
-        }
+    function rateMoreShows() {
+        getRandomShows();
+    }
+
+    function finishRating() {
+        alert("Thank you for rating! Your recommendations are ready.");
     }
 
     // Initialize
     getRandomShows();
-    displayShow();
 </script>
 
 </body>
