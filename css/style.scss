@@ -1,0 +1,125 @@
+/* Retro Fantasy Theme Styling for TV Shows Finder */
+
+body {
+    font-family: 'Garamond', serif; /* Gives a vintage look */
+    background-color: #3b3a3a; /* Dark, muted background for retro effect */
+    color: #f8f1e5; /* Soft, off-white text color */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1000px;
+    width: 90%;
+    padding: 20px;
+    background-color: #2d2c2c;
+    border: 1px solid #8a7e72;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Page Title */
+h1 {
+    text-align: center;
+    font-size: 2.5em;
+    color: #d4af37; /* Gold color for a luxurious retro touch */
+    text-shadow: 1px 1px 2px black;
+}
+
+/* TV Show Display Area */
+.show-info {
+    padding: 20px;
+    background-color: #403d3d;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.show-info h2 {
+    color: #e3c296;
+}
+
+.show-info p {
+    font-size: 1.1em;
+}
+
+/* Rating Section */
+.rating-section {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    font-size: 1.2em;
+    color: #d4af37;
+}
+
+.rating-section label {
+    margin-right: 10px;
+}
+
+/* Skip Button */
+.skip-button {
+    background-color: #7f6749;
+    color: #fff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.skip-button:hover {
+    background-color: #9a8a69;
+}
+
+/* Progress Bar */
+.progress-bar {
+    background-color: #565353;
+    border-radius: 10px;
+    overflow: hidden;
+    height: 20px;
+    margin: 20px 0;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: #d4af37;
+    transition: width 0.3s ease;
+}
+
+/* Chart Section */
+.chart-container {
+    margin: 20px 0;
+    text-align: center;
+}
+
+canvas {
+    max-width: 100%;
+}
+
+/* Rate More Button */
+.rate-more-button {
+    background-color: #8a7e72;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.rate-more-button:hover {
+    background-color: #a2907b;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.show-info, .chart-container, .rating-section {
+    animation: fadeIn 0.6s ease-in;
+}
